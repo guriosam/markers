@@ -1,8 +1,6 @@
 package br.ic.ufal.plugin.markers.handlers;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Scanner;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -22,14 +20,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.TextEdit;
 
 public class SampleHandler extends AbstractHandler {
 
@@ -163,21 +153,33 @@ public class SampleHandler extends AbstractHandler {
 							for (ICompilationUnit unit : mypackage.getCompilationUnits()) {
 								IType[] allTypes = unit.getAllTypes();
 								for (IType type : allTypes) {
-									String[] lines = type.getCompilationUnit().getSource()
-											.split(System.getProperty("line.separator"));
+									//String[] lines = type.getCompilationUnit().getSource()
+										//	.split(System.getProperty("line.separator"));
 									for (final IJavaElement ije : type.getChildren()) {
 										if (ije.getElementType() == IJavaElement.METHOD) {
 											IMethod m = (IMethod) ije;
 											if (sourceMethod.contains(m.getElementName())) {
 												int l = 0;
 
-												for (int i = 0; i < lines.length; i++) {
+											/*	for (int i = 0; i < lines.length; i++) {
 													if (lines[i].contains(m.getElementName())) {
 														l = i;
 														l++;
 														break;
 													}
+												}*/
+												
+												Scanner scanner = new Scanner(type.getCompilationUnit().getSource());
+												while (scanner.hasNextLine()) {
+												  String line = scanner.nextLine();
+												  l++;
+												  if(line.contains(m.getElementName())){
+													  break;
+												  }
+												  // process the line
 												}
+												scanner.close();
+												
 												if (l != 0) {
 													Refactor r = new Refactor(ije.getElementName(), m.getElementName(),
 															"");
